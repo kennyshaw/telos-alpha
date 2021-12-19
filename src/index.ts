@@ -1,6 +1,6 @@
 import * as a1lib from "@alt1/base";
 import ChatBoxReader from "@alt1/chatbox";
-import { EncounterManager } from "./EncounterManager";
+import { EncounterManager } from "./encountermanager";
 
 //tell webpack to add index.html and appconfig.json to output
 require("!file-loader?name=[name].[ext]!./index.html");
