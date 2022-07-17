@@ -18,7 +18,7 @@ var encounter = new EncounterManager();
 
 function start() {
 	var chatBoxFound = false;
-	var telosEncounterStarted = false;
+	var zammyEncounterStarted = false;
 
 	var chatboxFinder = setInterval(function () {
 		var found = reader.find();
@@ -29,19 +29,19 @@ function start() {
 		}
 	}, 600);
 
-	var telosFinder = setInterval(function () {
+	var zammyFinder = setInterval(function () {
 
-		if (encounter.foundEnrage && encounter.foundPhase) {
-			telosEncounterStarted = true;
+		if (encounter.foundEnrage) {
+			zammyEncounterStarted = true;
 			console.log("Started fight");
-			clearInterval(telosFinder);
+			clearInterval(zammyFinder);
 		}
 	}, 600);
 
-	encounter.findPhaseAndEnrageLocations();
+	encounter.findEnrageLocations();
 
 	setInterval(function(time) {
-		if (chatBoxFound && telosEncounterStarted) {
+		if (chatBoxFound && zammyEncounterStarted) {
 			readChatbox();
 		};
 	}, 200);
@@ -55,15 +55,6 @@ function highlightNextAttack() {
 		var tableName = tableRow!.innerText;
 
 		tableRow!.style.backgroundColor = tableName.toLowerCase() === nextAttack.toLowerCase() ? "green" : "";
-	}
-}
-
-function highlightNextHPThreshold() {
-	var phase = encounter.phase;
-
-	for (var i = 1; i < 4; i++) {
-		var tableRow = document.getElementById('p' + i + '_hp');
-		tableRow!.style.backgroundColor = i == phase ? "green" : "";
 	}
 }
 
@@ -89,29 +80,16 @@ function setupMechanicTables() {
 
 document.write(`
 	<hr />
-	<p style="font-size: 1em;" id="thresholds"><strong>Thresholds:</strong>&nbsp;</p>
-	<table style="height: 35px;" width="225">
-	<tbody>
-	<tr>
-	<td style="width: 75px; text-align: center; outline: thin solid;" id="p1_hp" bgcolor="">300000</td>
-	<td style="width: 75px; text-align: center; outline: thin solid" id="p2_hp" bgcolor="">200000</td>
-	<td style="width: 75px; text-align: center; outline: thin solid" id="p3_hp" bgcolor="">100000</td>
-	</tr>
-	</tbody>
-	</table>
-	<p style="font-size: 1em;" id="p4_hp">Phase 4 - [75000] [50000] [25000]</p>
-	<hr />
 	<p style="font-size: 1em;"><strong>Mechanics:</strong></p>
-	<p style="font-size: 1em;" id="last_attack"><strong>Last</strong> - None</p>
 	<p style="font-size: 1em;" id="next_attack"><strong>NEXT</strong>&nbsp;- <strong>Tendrils (P1)</strong></p>
 	<table style="height: 35px;" width="400">
 	<tbody>
 	<tr>
-	<td style="width: 60px; text-align: center; outline: thin solid" id="mech_1" bgcolor="">TENDRILS</td>
-	<td style="width: 60px; text-align: center; outline: thin solid" id="mech_2" bgcolor="">ONSLAUGHT</td>
-	<td style="width: 60px; text-align: center; outline: thin solid" id="mech_3" bgcolor="">STUN</td>
-	<td style="width: 60px; text-align: center; outline: thin solid" id="mech_4" bgcolor="">VIRUS</td>
-	<td style="width: 60px; text-align: center; outline: thin solid" id="mech_5" bgcolor="">CHARGE</td>
+	<td style="width: 60px; text-align: center; outline: thin solid" id="mech_1" bgcolor="">FLAMES</td>
+	<td style="width: 60px; text-align: center; outline: thin solid" id="mech_2" bgcolor="">ADRENCAGE</td>
+	<td style="width: 60px; text-align: center; outline: thin solid" id="mech_3" bgcolor="">CHAOSBLAST</td>
+	<td style="width: 60px; text-align: center; outline: thin solid" id="mech_4" bgcolor="">TOMB</td>
+	<td style="width: 60px; text-align: center; outline: thin solid" id="mech_5" bgcolor="">RUNES</td>
 	</tr>
 	</tbody>
 	</table>
@@ -130,7 +108,7 @@ function readChatbox() {
 	var minoverlap 	= 50;
 	var new_lines 	= [];
 	var opts 		= reader.read() 		|| [];
-	var phase 		= encounter.readPhase() || encounter.phase;
+	var phase 		= encounter.phase;
 
 	// Update next attack
 	if (old_phase != phase) {
@@ -138,7 +116,6 @@ function readChatbox() {
 		encounter.updateNextAttack();
 		setupMechanicTables();
 		highlightNextAttack();
-		highlightNextHPThreshold();
 	}
 
 	if (old_enrage < 0) {
@@ -172,10 +149,10 @@ function readChatbox() {
 		var stamp = opts[a].text.match(/(\d\d:\d\d:\d\d)/);
 		if (stamp) stamps_used = true;
 		// Instance made
-		if (opts[a].text.indexOf("Telos, the Warden") !== -1) {
+		if (opts[a].text.indexOf("Zamorak, Lord of Chaos") !== -1) {
 			encounter.phase = 1;
 			encounter.lastAttack = ["1", "N/A"];
-			encounter.nextAttack = "tendril";
+			encounter.nextAttack = "flames-of-zamorak";
 		}
 		
 		// Get enrage
@@ -202,24 +179,24 @@ function readChatbox() {
 		}
 	
 		// Special attacks
-		if (opts[a].text.indexOf("Gielinor, give me strength") !== -1) {
-			update("uppercut");
+		if (opts[a].text.indexOf("This world will burn.") !== -1) {
+			update("flames-of-zamorak");
 		}
-		if (opts[a].text.indexOf("Your anima will return to the source") !== -1) {
-			update("tendril");
+		if (opts[a].text.indexOf("Chaos, unfettered!") !== -1) {
+			update("adrenaline-cage");
 		}
-		if (opts[a].text.indexOf("Hold still, invader") !== -1) {
-			update("stun");
+		if (opts[a].text.indexOf("I will tear you asunder!") !== -1) {
+			update("chaos-blast");
 		}
-		if (opts[a].text.indexOf("The anima stream cleanses you") !== -1) {
-			update("virus");
+		if (opts[a].text.indexOf("Step into the dark...") !== -1) {
+			update("infernal-tomb");
 		}
-		if (opts[a].text.indexOf("the anima consume you") !== -1) {
-			update("anima");
+		if (opts[a].text.indexOf("You're already dead.") !== -1) {
+			update("runes-of-destruction");
 		}
-
-		var last_attack = document.getElementById('last_attack');
-		last_attack!.innerHTML = '<strong>Last</strong> - ' + encounter.lastAttack[1].toUpperCase() + '</p>';
+		if (opts[a].text.indexOf("HEED MY CALL") !== -1) {
+			encounter.updatePhase();
+		}
 
    		var next_attack = document.getElementById('next_attack');
    		next_attack!.innerHTML = '<strong>NEXT</strong>&nbsp;- <strong>' + encounter.nextAttack.toUpperCase() + ' (P' + encounter.phase + ')</strong>';
