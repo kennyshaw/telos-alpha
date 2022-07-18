@@ -105,11 +105,11 @@ export function EncounterManager() {
 		}
 	}
 
-	this.setFirstSpec = function(lastSpec, phase) {
-		var selectedPhase = me.firstSpec[phase]
-		var nextSpec = selectedPhase[lastSpec.attack]
+	this.setFirstSpec = function() {
+		var selectedPhase = me.firstSpec[me.phase]
+		var nextSpec = selectedPhase[me.lastAttack[1]]
 		if (nextSpec.constructor == Object ) {
-			this.nextAttack = nextSpec[lastSpec.phase]
+			this.nextAttack = nextSpec[me.lastAttack[1]]
 		} else {
 			this.nextAttack = nextSpec
 		}
@@ -134,7 +134,7 @@ export function EncounterManager() {
 	}
 	
 	this.updateNextAttack = function() {
-		this.lastAttack = me.specialAttacks[phase][lastAttack];
+		this.nextAttack = me.specialAttacks[me.phase][me.lastAttack[1]];
 	}
 
 	this.updatePhase = function() {
